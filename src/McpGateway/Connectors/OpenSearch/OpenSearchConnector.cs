@@ -24,7 +24,7 @@ public sealed class OpenSearchConnector : Connector, IOpenSearchBackend
     private readonly TimeProvider? _timeProvider;
 
     private AadAuthConnection? _authConnection;
-    private IOpenSearchClient? _client;
+    private OpenSearchClient? _client;
 
     /// <summary>Creates the connector.</summary>
     /// <param name="options">Validated endpoint and index allowlist.</param>

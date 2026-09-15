@@ -28,10 +28,13 @@ public sealed class ConnectorLifecycleService : IHostedService
     /// <inheritdoc />
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        _logger.ConnectingConnectors(
-            _registry.Connectors.Count,
-            _registry.Tools.Count,
-            string.Join(", ", _registry.Tools.Keys));
+        if (_logger.IsEnabled(LogLevel.Information))
+        {
+            _logger.ConnectingConnectors(
+                _registry.Connectors.Count,
+                _registry.Tools.Count,
+                string.Join(", ", _registry.Tools.Keys));
+        }
 
         await _registry.ConnectAllAsync(cancellationToken).ConfigureAwait(false);
 

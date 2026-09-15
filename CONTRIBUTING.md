@@ -24,6 +24,10 @@ CI runs the same three steps, plus CodeQL and a container build.
 
 - **Warnings are errors.** If an analyzer fires, fix the cause rather than suppressing it. A
   suppression needs a `Justification` that says why the rule does not apply here.
+- **The analyzer band is pinned** (`AnalysisLevel` in `Directory.Build.props`) and the SDK band
+  is pinned in `global.json`. Combined with warnings-as-errors, a floating rule set would let a
+  green build turn red on an SDK patch bump with no code change. Raise the level deliberately,
+  in its own commit, and fix what it surfaces.
 - **New behaviour comes with tests.** Anything touching authorization, argument validation,
   identity resolution or query construction needs tests for the failure paths too, not only
   the happy path.

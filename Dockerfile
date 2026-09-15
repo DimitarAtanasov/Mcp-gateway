@@ -3,7 +3,7 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /source
 
 # Restore against the manifests alone so the layer caches across source edits.
-COPY Directory.Build.props Directory.Packages.props McpGateway.sln ./
+COPY global.json Directory.Build.props Directory.Packages.props McpGateway.sln ./
 COPY src/McpGateway/McpGateway.csproj src/McpGateway/
 COPY tests/McpGateway.Tests/McpGateway.Tests.csproj tests/McpGateway.Tests/
 RUN dotnet restore
