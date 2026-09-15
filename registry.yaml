@@ -1,0 +1,28 @@
+connectors:
+  - name: opensearch
+    enabled: true
+    endpoint: "https://<your-opensearch-endpoint>"
+    allowed_indices:
+      - "product-docs-v1"
+      - "kb-articles-v1"
+    tools:
+      - vector_search
+    # Add future OpenSearch tools here once implemented, e.g.:
+    # tools: [vector_search, keyword_search, hybrid_search, index_stats]
+
+  # - name: redis
+  #   enabled: false
+  #   endpoint: "<your-redis-host>:6380"
+  #   tools: [cache_get, cache_set]
+
+  # - name: sql
+  #   enabled: false
+  #   endpoint: "<your-sql-server>.database.windows.net"
+  #   tools: [db_query]
+
+authz:
+  # Map each caller's AAD app id (or oid) to the tools it may invoke.
+  # Fail-closed: identities not listed here get zero tools.
+  - identity: "00000000-0000-0000-0000-000000000000"  # Azure AI Foundry agent's app id
+    allowed_tools:
+      - vector_search
