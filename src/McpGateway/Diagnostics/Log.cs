@@ -10,30 +10,27 @@ namespace McpGateway.Diagnostics;
 /// </summary>
 internal static partial class Log
 {
-    [LoggerMessage(EventId = 1000, Level = LogLevel.Debug,
-        Message = "Acquired access token for scope {Scope}, expiring at {ExpiresOn}.")]
-    public static partial void AccessTokenAcquired(this ILogger logger, string scope, DateTimeOffset expiresOn);
-
-    [LoggerMessage(EventId = 1001, Level = LogLevel.Warning,
-        Message = "Failed to renew the access token for scope {Scope}; continuing with the previous token.")]
-    public static partial void TokenRenewalFailed(this ILogger logger, Exception exception, string scope);
-
     [LoggerMessage(EventId = 2000, Level = LogLevel.Information,
-        Message = "OpenSearch connector ready for {Endpoint} with {AllowedIndexCount} allowed index(es).")]
-    public static partial void OpenSearchConnectorReady(this ILogger logger, Uri endpoint, int allowedIndexCount);
+        Message = "FHIR connector ready for {Endpoint}: {TotalDocuments} document(s) indexed, {SearchableDocuments} searchable, index at {IndexPath}.")]
+    public static partial void FhirConnectorReady(
+        this ILogger logger, Uri endpoint, int totalDocuments, int searchableDocuments, string indexPath);
 
     [LoggerMessage(EventId = 2001, Level = LogLevel.Warning,
-        Message = "OpenSearch health probe failed for {Endpoint}.")]
-    public static partial void OpenSearchHealthProbeFailed(this ILogger logger, Exception exception, Uri endpoint);
+        Message = "FHIR health probe failed for {Endpoint}.")]
+    public static partial void FhirHealthProbeFailed(this ILogger logger, Exception exception, Uri endpoint);
 
-    [LoggerMessage(EventId = 2002, Level = LogLevel.Error,
-        Message = "OpenSearch search on index {Index} failed with status {StatusCode}. {DebugInformation}")]
-    public static partial void OpenSearchSearchFailed(
-        this ILogger logger, Exception? exception, string index, int? statusCode, string debugInformation);
+    [LoggerMessage(EventId = 2002, Level = LogLevel.Information,
+        Message = "Document sync examined {Examined}, indexed {Indexed}, could not read {Unreadable}, skipped {Skipped} unchanged.")]
+    public static partial void DocumentSyncCompleted(
+        this ILogger logger, int examined, int indexed, int unreadable, int skipped);
 
-    [LoggerMessage(EventId = 2003, Level = LogLevel.Error,
-        Message = "OpenSearch returned a body that is not valid JSON for index {Index}.")]
-    public static partial void OpenSearchUnreadableResponse(this ILogger logger, Exception exception, string index);
+    [LoggerMessage(EventId = 2003, Level = LogLevel.Warning,
+        Message = "Could not ingest document {DocumentId}; it is recorded as unreadable and the sync continues.")]
+    public static partial void DocumentIngestFailed(this ILogger logger, Exception exception, string documentId);
+
+    [LoggerMessage(EventId = 2004, Level = LogLevel.Error,
+        Message = "Document sync failed for connector {Connector}; the next run will retry.")]
+    public static partial void DocumentSyncFailed(this ILogger logger, Exception exception, string connector);
 
     [LoggerMessage(EventId = 3000, Level = LogLevel.Warning,
         Message = "Rejected call to tool {Tool} from unauthorized identity {Identity}.")]

@@ -19,14 +19,8 @@ public sealed class ConnectorEntry
     /// <summary>Whether the gateway should instantiate and connect this connector.</summary>
     public bool Enabled { get; set; }
 
-    /// <summary>Backend endpoint. Required by the OpenSearch connector.</summary>
+    /// <summary>Backend endpoint. Required by the FHIR connector.</summary>
     public string? Endpoint { get; set; }
-
-    /// <summary>
-    /// Indices the model may query. Empty means no restriction, which is only appropriate for a
-    /// cluster that holds nothing the caller shouldn't see.
-    /// </summary>
-    public List<string> AllowedIndices { get; set; } = [];
 
     /// <summary>Names of the connector's tools to expose. Tools not listed here stay unregistered.</summary>
     public List<string> Tools { get; set; } = [];

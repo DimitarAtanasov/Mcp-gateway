@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using McpGateway.Connectors.Fhir;
 
 namespace McpGateway.Configuration;
 
@@ -47,8 +48,48 @@ public sealed class GatewayOptions
     /// <summary>Path the MCP endpoint is served at.</summary>
     public string McpPath { get; set; } = "/mcp";
 
-    /// <summary>AAD scope the OpenSearch connector requests tokens for.</summary>
-    public string OpenSearchScope { get; set; } = "https://opensearch.azure.com/.default";
+    /// <summary>How the gateway authenticates to the FHIR server.</summary>
+    public FhirAuthScheme FhirAuthScheme { get; set; } = FhirAuthScheme.Bearer;
+
+    /// <summary>Header carrying the credential when the scheme is ApiKeyHeader.</summary>
+    public string FhirApiKeyHeader { get; set; } = FhirConnectorOptions.DefaultApiKeyHeader;
+
+    /// <summary>
+    /// The FHIR credential. Comes from the environment or a mounted secret, is never logged, and
+    /// is never returned to a caller.
+    /// </summary>
+    public string? FhirCredential { get; set; }
+
+    /// <summary>
+    /// Where the document index lives. <c>:memory:</c> keeps extracted PHI out of storage at the
+    /// cost of re-syncing after every restart.
+    /// </summary>
+    public string IndexPath { get; set; } = "index.db";
+
+    /// <summary>How often the background document sync runs.</summary>
+    public TimeSpan SyncInterval { get; set; } = TimeSpan.FromMinutes(15);
+
+    /// <summary>Whether to sync shortly after startup rather than waiting a full interval.</summary>
+    public bool SyncOnStartup { get; set; } = true;
+
+    /// <summary>DocumentReferences requested per page during sync.</summary>
+    public int FhirPageSize { get; set; } = 50;
+
+    /// <summary>Largest attachment fetched; larger ones are recorded as too large, not indexed.</summary>
+    public long MaxAttachmentBytes { get; set; } = 25 * 1024 * 1024;
+
+    /// <summary>Projects the deployment-time FHIR settings for the connector factory.</summary>
+    public FhirRuntimeSettings ToFhirSettings() => new()
+    {
+        AuthScheme = FhirAuthScheme,
+        ApiKeyHeaderName = FhirApiKeyHeader,
+        Credential = FhirCredential,
+        IndexPath = IndexPath,
+        PageSize = FhirPageSize,
+        SyncInterval = SyncInterval,
+        SyncOnStartup = SyncOnStartup,
+        MaxAttachmentBytes = MaxAttachmentBytes,
+    };
 
     /// <summary>Builds the Kestrel URL for the HTTP transport.</summary>
     public string BindUrl => $"http://{Host}:{Port}";

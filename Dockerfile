@@ -24,7 +24,13 @@ COPY --from=build /app ./
 ENV GATEWAY_TRANSPORT=streamable-http \
     GATEWAY_PORT=8000 \
     GATEWAY_REGISTRY_PATH=/app/registry.yaml \
+    GATEWAY_INDEX_PATH=/var/lib/mcp-gateway/index.db \
     DOTNET_gcServer=1
+
+# The index holds text extracted from clinical documents, so it holds PHI. Mount an encrypted
+# volume here, or set GATEWAY_INDEX_PATH=:memory: to keep it out of storage entirely.
+RUN mkdir -p /var/lib/mcp-gateway && chown $APP_UID /var/lib/mcp-gateway
+VOLUME ["/var/lib/mcp-gateway"]
 
 EXPOSE 8000
 

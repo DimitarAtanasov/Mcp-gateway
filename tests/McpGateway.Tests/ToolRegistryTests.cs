@@ -13,12 +13,9 @@ public sealed class RegistryLoaderTests
     {
         var document = RegistryLoader.Parse("""
             connectors:
-              - name: opensearch
+              - name: fhir
                 enabled: true
                 endpoint: "https://search.example"
-                allowed_indices:
-                  - product-docs-v1
-                  - kb-articles-v1
                 tools:
                   - vector_search
             authz:
@@ -28,10 +25,9 @@ public sealed class RegistryLoaderTests
             """);
 
         var connector = Assert.Single(document.Connectors);
-        Assert.Equal("opensearch", connector.Name);
+        Assert.Equal("fhir", connector.Name);
         Assert.True(connector.Enabled);
         Assert.Equal("https://search.example", connector.Endpoint);
-        Assert.Equal(["product-docs-v1", "kb-articles-v1"], connector.AllowedIndices);
         Assert.Equal(["vector_search"], connector.Tools);
 
         var authz = Assert.Single(document.Authz);
@@ -71,7 +67,7 @@ public sealed class RegistryLoaderTests
     public void Load_ReadsAFileFromDisk()
     {
         var path = Path.Combine(Path.GetTempPath(), $"registry-{Guid.NewGuid():N}.yaml");
-        File.WriteAllText(path, "connectors:\n  - name: opensearch\n    enabled: false\n");
+        File.WriteAllText(path, "connectors:\n  - name: fhir\n    enabled: false\n");
 
         try
         {

@@ -6,7 +6,7 @@
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
     <!-- Tests deliberately construct invalid inputs and assert on them. -->
-    <NoWarn>$(NoWarn);CA1861;CA2007;CA1707</NoWarn>
+    <NoWarn>$(NoWarn);CA1861;CA2007;CA1707;CA1001</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

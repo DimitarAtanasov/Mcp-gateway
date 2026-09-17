@@ -1,8 +1,6 @@
-using McpGateway.Auth;
 using McpGateway.Connectors;
-using McpGateway.Connectors.OpenSearch;
+using McpGateway.Connectors.Fhir;
 using Microsoft.Extensions.Logging;
-using OpenSearch.Net;
 
 namespace McpGateway.Registry;
 
@@ -14,37 +12,28 @@ namespace McpGateway.Registry;
 /// </summary>
 public sealed class ConnectorFactory : IConnectorFactory
 {
-    private readonly IAccessTokenProvider _tokenProvider;
+    private readonly FhirRuntimeSettings _fhirSettings;
     private readonly ILoggerFactory _loggerFactory;
-    private readonly string _openSearchScope;
-    private readonly Func<IConnection?>? _innerConnectionFactory;
+    private readonly HttpMessageHandler? _transport;
 
     private readonly Dictionary<string, Func<ConnectorEntry, Connector>> _factories;
 
     /// <summary>Creates the factory.</summary>
-    /// <param name="tokenProvider">Source of AAD tokens for backends.</param>
+    /// <param name="fhirSettings">Credential and index settings for the FHIR connector.</param>
     /// <param name="loggerFactory">Logger factory handed to connectors.</param>
-    /// <param name="openSearchScope">AAD scope for the OpenSearch backend.</param>
-    /// <param name="innerConnectionFactory">Transport override; tests use it to supply a fake.</param>
+    /// <param name="transport">HTTP transport override; tests use it to supply a fake.</param>
     public ConnectorFactory(
-        IAccessTokenProvider tokenProvider,
+        FhirRuntimeSettings fhirSettings,
         ILoggerFactory loggerFactory,
-        string? openSearchScope = null,
-        Func<IConnection?>? innerConnectionFactory = null)
+        HttpMessageHandler? transport = null)
     {
-        _tokenProvider = tokenProvider ?? throw new ArgumentNullException(nameof(tokenProvider));
+        _fhirSettings = fhirSettings ?? throw new ArgumentNullException(nameof(fhirSettings));
         _loggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
-        _openSearchScope = string.IsNullOrWhiteSpace(openSearchScope)
-            ? OpenSearchConnectorOptions.DefaultAadScope
-            : openSearchScope;
-        _innerConnectionFactory = innerConnectionFactory;
+        _transport = transport;
 
         _factories = new Dictionary<string, Func<ConnectorEntry, Connector>>(StringComparer.OrdinalIgnoreCase)
         {
-            ["opensearch"] = CreateOpenSearchConnector,
-
-            // ["redis"] = CreateRedisConnector,
-            // ["sql"] = CreateSqlConnector,
+            ["fhir"] = CreateFhirConnector,
         };
     }
 
@@ -65,10 +54,6 @@ public sealed class ConnectorFactory : IConnectorFactory
         return factory(entry);
     }
 
-    private OpenSearchConnector CreateOpenSearchConnector(ConnectorEntry entry) =>
-        new OpenSearchConnector(
-            OpenSearchConnectorOptions.FromEntry(entry, _openSearchScope),
-            _tokenProvider,
-            _loggerFactory,
-            _innerConnectionFactory?.Invoke());
+    private FhirConnector CreateFhirConnector(ConnectorEntry entry) =>
+        new(FhirConnectorOptions.FromEntry(entry, _fhirSettings), _loggerFactory, _transport);
 }

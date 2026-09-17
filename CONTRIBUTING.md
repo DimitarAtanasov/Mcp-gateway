@@ -46,5 +46,11 @@ See the "Extending" section of the README. A connector needs:
 2. Tools returning `ToolDefinition`s with a JSON Schema for their inputs.
 3. An entry in `ConnectorFactory`'s factory map.
 4. Tests covering its options validation and its tools' argument handling, using a fake
-   transport rather than a live backend — `RecordingConnection` and `FakeOpenSearchBackend`
-   show the pattern.
+   transport rather than a live backend — `FakeFhirApi` and `FakeHttpMessageHandler` show the
+   pattern.
+
+## Working with PHI
+
+The document index holds text extracted from clinical documents. Never commit a real index, a
+real FHIR endpoint, or a real credential. Tests must use synthetic content only: everything in
+`FhirSamples` is invented, and it should stay that way.

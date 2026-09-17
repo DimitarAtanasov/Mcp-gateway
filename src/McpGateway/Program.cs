@@ -1,6 +1,3 @@
-using Azure.Core;
-using Azure.Identity;
-using McpGateway.Auth;
 using McpGateway.Configuration;
 using McpGateway.Hosting;
 using McpGateway.Registry;
@@ -161,14 +158,11 @@ public static class Program
             .ValidateOnStart();
         services.AddSingleton<IValidateOptions<GatewayOptions>, GatewayOptionsValidator>();
 
-        services.AddSingleton<TokenCredential>(_ => new DefaultAzureCredential());
-        services.AddSingleton<IAccessTokenProvider, ManagedIdentityTokenProvider>();
         services.AddSingleton<IToolArgumentValidator, ToolArgumentValidator>();
 
         services.AddSingleton<IConnectorFactory>(provider => new ConnectorFactory(
-            provider.GetRequiredService<IAccessTokenProvider>(),
-            provider.GetRequiredService<ILoggerFactory>(),
-            options.OpenSearchScope));
+            options.ToFhirSettings(),
+            provider.GetRequiredService<ILoggerFactory>()));
 
         services.AddSingleton(provider => ToolRegistry.Create(
             RegistryLoader.Load(options.RegistryPath),
@@ -176,6 +170,7 @@ public static class Program
 
         services.AddSingleton<ToolDispatcher>();
         services.AddHostedService<ConnectorLifecycleService>();
+        services.AddHostedService<DocumentSyncService>();
     }
 }
 
